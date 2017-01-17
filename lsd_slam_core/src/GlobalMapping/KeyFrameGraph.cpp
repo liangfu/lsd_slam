@@ -327,7 +327,7 @@ int KeyFrameGraph::optimize(int num_iterations)
 	if (graph.edges().size() == 0)
 		return 0;
 	
-	graph.setVerbose(false); // printOptimizationInfo
+	graph.setVerbose(true); // printOptimizationInfo
 	graph.initializeOptimization();
 	
 

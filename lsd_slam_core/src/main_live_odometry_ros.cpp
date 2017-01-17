@@ -25,22 +25,45 @@
 #include "util/globalFuncs.h"
 #include "SlamSystem.h"
 
-#include "IOWrapper/OpenCV/OCVImageStreamThread.h"
-#include "IOWrapper/OpenCV/OCVOutput3DWrapper.h"
+
+#include "IOWrapper/ROS/ROSImageStreamThread.h"
+#include "IOWrapper/ROS/ROSOutput3DWrapper.h"
+#include "IOWrapper/ROS/rosReconfigure.h"
+
+#include <X11/Xlib.h>
 
 using namespace lsd_slam;
-
 int main( int argc, char** argv )
 {
-	InputImageStream* inputStream = new OCVImageStreamThread();
+    XInitThreads();
+
+	ros::init(argc, argv, "LSD_SLAM");
+
+	dynamic_reconfigure::Server<lsd_slam_core::LSDParamsConfig> srv(ros::NodeHandle("~"));
+	srv.setCallback(dynConfCb);
+
+	dynamic_reconfigure::Server<lsd_slam_core::LSDDebugParamsConfig> srvDebug(ros::NodeHandle("~Debug"));
+	srvDebug.setCallback(dynConfCbDebug);
+
+	packagePath = ros::package::getPath("lsd_slam_core")+"/";
+
+	InputImageStream* inputStream = new ROSImageStreamThread();
 
 	std::string calibFile;
-  inputStream->setCalibration("");
+	if(ros::param::get("~calib", calibFile))
+	{
+		ros::param::del("~calib");
+		inputStream->setCalibration(calibFile);
+	}
+	else
+		inputStream->setCalibration("");
 	inputStream->run();
 
-	Output3DWrapper* outputWrapper = new OCVOutput3DWrapper(inputStream->width(), inputStream->height());
+	Output3DWrapper* outputWrapper = new ROSOutput3DWrapper(inputStream->width(), inputStream->height());
 	LiveSLAMWrapper slamNode(inputStream, outputWrapper);
 	slamNode.Loop();
+
+
 
 	if (inputStream != nullptr)
 		delete inputStream;
@@ -49,4 +72,3 @@ int main( int argc, char** argv )
 
 	return 0;
 }
-

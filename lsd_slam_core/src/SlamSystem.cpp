@@ -1538,6 +1538,7 @@ int SlamSystem::findConstraintsForNewKeyFrames(Frame* newKeyFrame, bool forcePar
 			float downweightFac = 5;
 			const float kernelDelta = 5 * sqrt(6000*loopclosureStrictness) / downweightFac;
 			printf("warning: reciprocal tracking on new frame failed badly, added odometry edge (Hacky).\n");
+      assert(false);
 
 			poseConsistencyMutex.lock_shared();
 			constraints.push_back(new KFConstraintStruct());

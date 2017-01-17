@@ -40,7 +40,7 @@ namespace lsd_slam
 	#define USESSE false
 #endif
 
-
+#undef NDEBUG
 #if defined(NDEBUG)
 	#define enablePrintDebugInfo false
 #else
